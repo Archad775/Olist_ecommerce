@@ -1,0 +1,185 @@
+models:
+  - name: dim_products
+    description: "This model contains the cleaned product dimensions"
+    columns:
+      - name: product_id
+        description: "Unique identifier for each products"
+        data_tests:
+          - unique
+          - not_null
+      - name: product_weight_g
+        description: "Weight of each item in grams"
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 50000
+              strictly: True
+              config:
+                severity: warn
+
+      - name: product_volume_cm3
+        description: "This represent the full size of the product (length * height * width)"
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 300000
+              strictly: True
+              config:
+                severity: warn
+
+
+  - name: dim_customers
+    data_tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          compare_model: ref('fact_orders')
+    columns:
+      - name: customer_transaction_id
+        description: "Unique identifier for each customer transaction"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Unique identifier for each customer"
+        data_tests:
+          - not_null
+
+
+  - name: dim_sellers
+    columns:
+      - name: seller_id
+        description: "Unique identifier for each seller"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: seller_state_abbr
+        data_tests:
+          - accepted_values:
+              values: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']
+
+
+  - name: fact_orders
+    description: "This model contains the cleaned order facts"
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order"
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_transaction_id
+        description: "Unique identifier for each customer transaction"
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_status
+        description: "The status of the order"
+        data_tests:
+          - accepted_values:
+              values: ['delivered','shipped','canceled','invoiced','processing','unavailable','created','approved']
+
+      - name: order_purchase_timestamp
+        description: "The timestamp when the order was purchased"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: is_missing_approval
+        description: "This specifies if there is approval timestamp present or not"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+      - name: is_missing_shipping_date
+        description: "This indicates if shipping date is present or not"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+      - name: is_missing_delivery_date
+        description: "This indicates whether delivery date is present or not"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+      - name: is_carrier_before_approval
+        description: "This column indicates whether the carrier was assigned before the order was approved"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+
+      - name: is_delivered_before_shipping
+        description: "This column indicates whether the order was delivered before it was shipped"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+      - name: is_approval_before_purchase
+        description: "This column indicates whether the order was delivered before it was shipped"
+        data_tests:
+          - flag_is_false:
+              config:
+                severity: warn
+
+                
+
+  - name: fact_order_items
+    columns:
+    - name: order_id
+      data_tests:
+        - not_null
+        - relationships:
+            to: ref('fact_orders')
+            field: order_id
+
+    - name: order_item_id
+      data_tests:
+        - not_null
+
+    - name: product_id
+      data_tests:
+        - not_null
+        - relationships:
+            to: ref('dim_products')
+            field: product_id
+
+    - name: seller_id
+      data_tests:
+        - not_null
+        - relationships:
+            to: ref('dim_sellers')
+            field: seller_id
+
+    - name: price
+      data_tests:
+        - dbt_expectations.expect_column_values_to_be_between:
+            min_value: 0
+            max_value: 10000
+            strictly: True
+            config:
+              severity: warn
+
+    - name: freight_value
+      data_tests:
+        - dbt_expectations.expect_column_values_to_be_between:
+            min_value: 0
+            max_value: 1000
+            strictly: True
+            config:
+              severity: warn
+
+
+                
+
+
+
+      

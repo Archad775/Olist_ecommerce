@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: oilst
+    schema: raw
+    description: "Brazillian Ecommerce database that captures logistics information loaded from kaggle"
+    tables: 
+      - name: orders
+        description: "One row per order. contains order status and all time stamps"
+      - name: order_items
+        description: "One row per order per item. contains information about price and freight as well"
+      - name: order_payments
+        description: "One row per payment sequence. Orders can have multiple payment methods."
+      - name: order_reviews
+        description: "Customer reviews submitted after delivery. One order can have multiple reviews."
+      - name: customers
+        description: "Customer records scoped to each order. customer_unique_id is the true person identifier."
+      - name: sellers
+        description: "Seller dimension table with location data."
+      - name: products
+        description: "Product dimension with category and physical attributes."
+      - name: product_category_translation
+        description: "Maps Portuguese category names to English equivalents."
+      
