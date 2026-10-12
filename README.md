@@ -8,7 +8,7 @@ A production-style dbt project built on the Brazilian E-Commerce public dataset 
 
 > **To generate this image:** run `dbt docs generate && dbt docs serve` in your project, open the lineage graph in the browser, take a screenshot, save it as `docs/lineage_dag.png`, then replace this placeholder.
 
-![dbt lineage DAG](images/lineage_dag.png)
+![dbt lineage DAG](docs/lineage_dag.png)
 
 The pipeline runs in four layers: **raw** (Postgres source tables) → **staging** (renames + boolean flag computation) → **intermediate** (cross-source joins) → **mart** (`dim_*` + `fact_*` tables). Elementary captures test results into a separate `dbt_dev_elementary` schema after every run.
 
@@ -20,7 +20,7 @@ A standalone HTML dashboard visualises every test result — health gauge, KPI t
 
 > **To add this screenshot:** open `docs/data_integrity_dashboard.html` in Chrome, take a full-page screenshot, save it as `docs/screenshots/dashboard_integrity.png`.
 
-![Data Integrity Dashboard](images/screenshots/dashboard_integrity.png)
+![Data Integrity Dashboard](docs/screenshots/dashboard_integrity.png)
 
 ---
 
@@ -30,7 +30,7 @@ The insights panel translates the 7 test warnings into plain-language diagnosis:
 
 > **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/screenshots/dashboard_insights.png`.
 
-![Data Quality Insights](images/screenshots/dashboard_insights.png)
+![Data Quality Insights](docs/screenshots/dashboard_insights.png)
 
 ---
 
