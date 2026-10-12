@@ -1,35 +1,36 @@
 # Oilst E-Commerce · dbt Analytics Project
 
-A production-style dbt project built on the Brazilian E-Commerce public dataset (Olist / Kaggle). The project demonstrates a full analytics engineering workflow — raw ingestion, layered modelling, a custom generic test, elementary observability, and a data quality dashboard.
+A production-style dbt project built on the Brazilian E-Commerce public dataset (Olist / Kaggle). The project demonstrates a full analytics engineering workflow — raw ingestion, layered modelling, a custom generic test, elementary observability, and a standalone data quality dashboard.
 
 ---
 
-## Architecture
+## Lineage DAG
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Source (Kaggle CSV)  →  PostgreSQL raw schema              │
-│                              │                              │
-│                         dbt run / test                      │
-│                              │                              │
-│          ┌───────────────────┼────────────────────┐         │
-│       Staging            Intermediate           Mart         │
-│   (renamed + flagged)   (joined + enriched)  (dim + fact)   │
-│                              │                              │
-│                    dbt_dev_elementary schema                 │
-│                   (elementary test results)                  │
-│                              │                              │
-│                  Data Integrity Dashboard (HTML)             │
-└─────────────────────────────────────────────────────────────┘
-```
+> **To generate this image:** run `dbt docs generate && dbt docs serve` in your project, open the lineage graph in the browser, take a screenshot, save it as `docs/lineage_dag.png`, then replace this placeholder.
 
-| Layer | Schema | Purpose |
-|---|---|---|
-| Source | `raw` | Raw CSVs loaded as-is into Postgres |
-| Staging | `dbt_dev` | Column renames, type casts, boolean flag computation |
-| Intermediate | `dbt_dev` | Cross-source joins and enrichment |
-| Mart | `dbt_dev` | `dim_*` and `fact_*` tables for analytics consumption |
-| Observability | `dbt_dev_elementary` | Elementary test result tables |
+![dbt lineage DAG](images/lineage_dag.png)
+
+The pipeline runs in four layers: **raw** (Postgres source tables) → **staging** (renames + boolean flag computation) → **intermediate** (cross-source joins) → **mart** (`dim_*` + `fact_*` tables). Elementary captures test results into a separate `dbt_dev_elementary` schema after every run.
+
+---
+
+## Data Quality Dashboard
+
+A standalone HTML dashboard visualises every test result — health gauge, KPI tiles, failure breakdown chart, model health matrix, and anomaly insights. No server required; open directly in a browser.
+
+> **To add this screenshot:** open `docs/data_integrity_dashboard.html` in Chrome, take a full-page screenshot, save it as `docs/screenshots/dashboard_integrity.png`.
+
+![Data Integrity Dashboard](images/screenshots/dashboard_integrity.png)
+
+---
+
+## Data Insights Panel
+
+The insights panel translates the 7 test warnings into plain-language diagnosis: what each anomaly pattern means, its likely root cause, and its scale relative to the full dataset.
+
+> **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/screenshots/dashboard_insights.png`.
+
+![Data Quality Insights](images/screenshots/dashboard_insights.png)
 
 ---
 
@@ -39,10 +40,43 @@ A production-style dbt project built on the Brazilian E-Commerce public dataset 
 |---|---|---|
 | dbt Core | 1.9.11 | Transformation framework |
 | dbt-postgres | 1.9.1 | Postgres adapter |
-| dbt-expectations | latest | Extended test library |
-| elementary | 0.15.x | Test observability |
+| dbt-expectations | latest | Extended test library (range, row-count) |
+| elementary | 0.15.x | Test observability — populates `dbt_dev_elementary` |
 | PostgreSQL | 16 | Analytical warehouse |
 | Python | 3.12 | dbt runtime |
+| HTML / Vanilla JS | — | Standalone data quality dashboard (`docs/data_integrity_dashboard.html`) |
+
+---
+
+## Architecture
+
+```
+PostgreSQL (raw schema)
+    └── 8 source tables (orders, order_items, payments,
+        reviews, customers, sellers, products, translations)
+             │
+         dbt run
+             │
+     ┌───────┴────────┐
+  Staging           Staging
+  (renames)     (boolean flags)
+     └───────┬────────┘
+         Intermediate
+       (cross-source join)
+             │
+      ┌──────┴──────┐
+   dim_*          fact_*
+(customers,    (fact_orders,
+ products,    fact_order_items)
+ sellers)
+             │
+         dbt test
+             │
+   dbt_dev_elementary schema
+   (elementary_test_results)
+             │
+   Data Integrity Dashboard
+```
 
 ---
 
@@ -66,10 +100,14 @@ oilst_ecommerce/
 ├── tests/
 │   └── generic/
 │       └── flag_is_false.sql           # Custom generic test macro
+├── docs/
+│   ├── data_integrity_dashboard.html   # Standalone quality dashboard
+│   ├── lineage_dag.png                 # dbt docs lineage screenshot
+│   └── screenshots/
+│       ├── dashboard_integrity.png
+│       └── dashboard_insights.png
 ├── packages.yml                        # dbt-expectations, elementary
-├── dbt_project.yml
-└── docs/
-    └── data_integrity_dashboard.html   # Standalone quality dashboard
+└── dbt_project.yml
 ```
 
 ---
@@ -107,7 +145,7 @@ end as is_missing_approval,
 case
     when order_approved_at > order_delivered_carrier_date then TRUE
     else FALSE
-end as is_carrier_before_approval,
+end as is_carrier_before_approval
 -- ... four more flags
 ```
 
@@ -158,8 +196,6 @@ These flags are then tested with a single custom generic test:
 
 ### What the 7 warnings mean
 
-The warnings surface genuine patterns in the source data, not pipeline failures:
-
 | Flag | Affected rows | Likely cause |
 |---|---|---|
 | `is_missing_approval` | 160 | Batch-approval flows — status recorded without timestamp |
@@ -184,22 +220,18 @@ git clone https://github.com/Archad775/Olist_ecommerce.git
 cd Olist_ecommerce
 pip install dbt-core==1.9.11 dbt-postgres==1.9.1
 
-# 2. Create ~/.dbt/profiles.yml (see profiles.yml.example)
+# 2. Create ~/.dbt/profiles.yml targeting your local Postgres instance
 
 # 3. Install dbt packages
 dbt deps
 
-# 4. Load raw data into Postgres (use the DDL scripts in /setup)
-# Then run
+# 4. Load raw CSVs into the raw schema (DDL in /setup), then run
 dbt run
 dbt test
+
+# 5. Open the dashboard
+start docs/data_integrity_dashboard.html
 ```
-
----
-
-## Data Quality Dashboard
-
-A standalone HTML dashboard (`docs/data_integrity_dashboard.html`) visualises the test suite output with a health gauge, failure breakdown chart, model matrix, and anomaly insights. Open it directly in a browser — no server required.
 
 ---
 
