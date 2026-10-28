@@ -31,9 +31,9 @@ metrics as operational truth: review sentiment concentration, freight burden
 relative to order value, seller revenue inequality, delivery tolerance (late 
 but still loved), and median delivery breach days.
 
-![Dashboard Insights](docs/dashboard_insights.png)
-
 > **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/dashboard_insights.png`.
+
+![Data Quality Insights](docs/dashboard_insights.png)
 
 ---
 
