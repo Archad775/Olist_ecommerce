@@ -24,11 +24,16 @@ A standalone HTML dashboard visualises every test result — health gauge, KPI t
 
 ---
 
-## Data Insights Panel
+## Dashboard Insights Panel
 
-The insights panel translates the 7 test warnings into plain-language diagnosis: what each anomaly pattern means, its likely root cause, and its scale relative to the full dataset.
+The insights panel surfaces five core KPIs that reframe standard e-commerce 
+metrics as operational truth: review sentiment concentration, freight burden 
+relative to order value, seller revenue inequality, delivery tolerance (late 
+but still loved), and median delivery breach days.
 
-> **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/screenshots/dashboard_insights.png`.
+![Dashboard Insights](docs/dashboard_insights.png)
+
+> **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/dashboard_insights.png`.
 
 ![Data Quality Insights](docs/screenshots/dashboard_insights.png)
 
