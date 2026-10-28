@@ -35,8 +35,6 @@ but still loved), and median delivery breach days.
 
 > **To add this screenshot:** scroll to the "Data quality insights" section of the dashboard and screenshot the three insight cards, save as `docs/dashboard_insights.png`.
 
-![Data Quality Insights](docs/screenshots/dashboard_insights.png)
-
 ---
 
 ## Tech Stack
