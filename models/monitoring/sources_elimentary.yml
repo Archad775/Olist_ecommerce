@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: elementary
+    schema: dbt_dev_elementary
+    tables:
+      - name: elementary_test_results
+      - name: dbt_invocations

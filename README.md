@@ -20,7 +20,7 @@ A standalone HTML dashboard visualises every test result — health gauge, KPI t
 
 > **To add this screenshot:** open `docs/data_integrity_dashboard.html` in Chrome, take a full-page screenshot, save it as `docs/screenshots/dashboard_integrity.png`.
 
-![Data Integrity Dashboard](docs/screenshots/dashboard_integrity.png)
+![Data Integrity Dashboard](docs/dashboard_integrity.png)
 
 ---
 

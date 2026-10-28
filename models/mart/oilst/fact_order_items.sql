@@ -3,6 +3,7 @@ with order_items as (
 )
 
 select 
+    order_item_transaction_id
     order_id,
     order_item_id,
     product_id,
